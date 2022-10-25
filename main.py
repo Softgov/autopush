@@ -31,6 +31,26 @@ def get_last_commit():
                     with open('last_commit.txt', 'w') as f:
                         f.write(branch.commit.hexsha)
                     print(f'There are changes, new commit: {branch.commit.hexsha}')
+                    print('Set new COMMITTER and AUTHOR')
+                    change_commiter(ORIGINAL_EMAIL, NEW_NAME, NEW_EMAIL)
+                    print('Set original COMMITTER and AUTHOR')
+                    change_commiter(NEW_EMAIL, ORIGINAL_NAME, ORIGINAL_EMAIL) 
+
+
+def change_commiter(old_email, new_name, new_email):
+    git.Repo(PATH_TO_SRC_REPO).git.execute(['git', 'filter-branch', '-f', '--env-filter',
+                f'OLD_EMAIL="{old_email}" CORRECT_NAME="{new_name}" CORRECT_EMAIL="{new_email}" \n' +
+                'if [ "$GIT_COMMITTER_EMAIL" = "$OLD_EMAIL" ] \n' +
+                'then \n' +
+                    'export GIT_COMMITTER_NAME="$CORRECT_NAME" \n' +
+                    'export GIT_COMMITTER_EMAIL="$CORRECT_EMAIL" \n' +
+                'fi \n' +
+                'if [ "$GIT_AUTHOR_EMAIL" = "$OLD_EMAIL" ] \n' +
+                'then ' +
+                    'export GIT_AUTHOR_NAME="$CORRECT_NAME" \n' +
+                    'export GIT_AUTHOR_EMAIL="$CORRECT_EMAIL" \n' +
+                ' fi', '--tag-name-filter', 'cat', '--', '--branches', '--tags'])
+
 
 if __name__ == '__main__':
     schedule.every(10).seconds.do(get_last_commit)

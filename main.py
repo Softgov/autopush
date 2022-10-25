@@ -33,8 +33,10 @@ def get_last_commit():
                     print(f'There are changes, new commit: {branch.commit.hexsha}')
                     print('Set new COMMITTER and AUTHOR')
                     change_commiter(ORIGINAL_EMAIL, NEW_NAME, NEW_EMAIL)
+                    print('git push...')
+                    push_to_different_repo()
                     print('Set original COMMITTER and AUTHOR')
-                    change_commiter(NEW_EMAIL, ORIGINAL_NAME, ORIGINAL_EMAIL) 
+                    change_commiter(NEW_EMAIL, ORIGINAL_NAME, ORIGINAL_EMAIL)   
 
 
 def change_commiter(old_email, new_name, new_email):
@@ -51,6 +53,21 @@ def change_commiter(old_email, new_name, new_email):
                     'export GIT_AUTHOR_EMAIL="$CORRECT_EMAIL" \n' +
                 ' fi', '--tag-name-filter', 'cat', '--', '--branches', '--tags'])
 
+def push_to_different_repo():
+
+    dest_remote_repo = git.Repo(PATH_TO_DEST_REPO).config_reader().get_value(f'remote "{ORIGINAL_REMOTE_REPO}"', "url")
+
+    git.Repo(PATH_TO_SRC_REPO).create_remote(NEW_REMOTE_REPO, dest_remote_repo)
+
+    # branch = TARGET_BRANCH.split('/')[1]
+
+    # git.Repo(PATH_TO_SRC_REPO).remote(name=NEW_REMOTE).push(f'{commit_hexsha}:{branch}')
+
+    git.Repo(PATH_TO_SRC_REPO).git.execute(['git', 'push', '-f', NEW_REMOTE_REPO, 'refs/heads/*'])
+
+    git.Repo(PATH_TO_SRC_REPO).delete_remote(git.Repo(PATH_TO_SRC_REPO).remote(NEW_REMOTE_REPO))
+
+    git.Repo(PATH_TO_SRC_REPO).git.execute(['git', 'pull', ORIGINAL_REMOTE_REPO, '--allow-unrelated-histories'])
 
 if __name__ == '__main__':
     schedule.every(10).seconds.do(get_last_commit)

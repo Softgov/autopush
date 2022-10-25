@@ -1,0 +1,11 @@
+[SETTINGS]
+target_branch = origin/development
+path_to_src_repo = ../github1
+path_to_dest_repo = ../github2
+original_name = Ivan
+original_email = ivan@almazov.ru
+new_name = pin
+new_email = pin@moscow.ru
+original_remote_repo = origin
+new_remote_repo = origin2
+

@@ -1,19 +1,23 @@
 import git
 import schedule
 import time
+import configparser
 
-TARGET_BRANCH = 'origin/development'
-PATH_TO_SRC_REPO = '../github1'
-PATH_TO_DEST_REPO = '../github2'
+config = configparser.ConfigParser()
+config.read('config')
 
-ORIGINAL_NAME = 'Ivan'
-ORIGINAL_EMAIL = 'ivan@almazov.ru'
+TARGET_BRANCH = config['SETTINGS']['target_branch']
+PATH_TO_SRC_REPO = config['SETTINGS']['path_to_src_repo']
+PATH_TO_DEST_REPO = config['SETTINGS']['path_to_dest_repo']
 
-NEW_NAME = 'pin'
-NEW_EMAIL = 'pin@moscow.ru'
+ORIGINAL_NAME = config['SETTINGS']['original_name']
+ORIGINAL_EMAIL = config['SETTINGS']['original_email']
 
-ORIGINAL_REMOTE_REPO = 'origin'
-NEW_REMOTE_REPO = 'origin2'
+NEW_NAME = config['SETTINGS']['new_name']
+NEW_EMAIL = config['SETTINGS']['new_email']
+
+ORIGINAL_REMOTE_REPO = config['SETTINGS']['original_remote_repo']
+NEW_REMOTE_REPO = config['SETTINGS']['new_remote_repo']
 
 # repo.heads.development.commit - последний локальный коммит
 

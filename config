@@ -1,5 +1,5 @@
 [SETTINGS]
-target_branch = origin/development
+target_branch = development
 path_to_dev_repo = ../github1
 path_to_prod_repo = ../github2
 dev_repo_name = Ivan_dev

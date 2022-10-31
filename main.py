@@ -37,6 +37,7 @@ def get_last_commit(path_to_src_repo, path_to_dest_repo, target_branch, original
                     repo.git.execute(['git', 'pull', ORIGINAL_REMOTE_REPO, '--allow-unrelated-histories'])
                 else:
                     print(f'There are changes in repo {path_to_src_repo}, new commit: {branch.commit.hexsha}')
+                    repo.git.execute(['git', 'pull', ORIGINAL_REMOTE_REPO, '--allow-unrelated-histories'])
                     with open(commit_file, 'w') as f:
                         f.write(branch.commit.hexsha)
                     if f'Merge branch \'{TARGET_BRANCH}\' of' not in branch.commit.message:
@@ -52,17 +53,12 @@ def get_last_commit(path_to_src_repo, path_to_dest_repo, target_branch, original
 
 def change_commiter(path_to_repo, old_email, new_name, new_email):
     git.Repo(path_to_repo).git.execute(['git', 'filter-branch', '-f', '--env-filter',
-                f'OLD_EMAIL="{old_email}" CORRECT_NAME="{new_name}" CORRECT_EMAIL="{new_email}" \n' +
-                'if [ "$GIT_COMMITTER_EMAIL" = "$OLD_EMAIL" ] \n' +
-                'then \n' +
+                f'CORRECT_NAME="{new_name}" CORRECT_EMAIL="{new_email}" \n'
                     'export GIT_COMMITTER_NAME="$CORRECT_NAME" \n' +
                     'export GIT_COMMITTER_EMAIL="$CORRECT_EMAIL" \n' +
-                'fi \n' +
-                'if [ "$GIT_AUTHOR_EMAIL" = "$OLD_EMAIL" ] \n' +
-                'then ' +
                     'export GIT_AUTHOR_NAME="$CORRECT_NAME" \n' +
-                    'export GIT_AUTHOR_EMAIL="$CORRECT_EMAIL" \n' +
-                ' fi', '--tag-name-filter', 'cat', '--', '--branches', '--tags'])
+                    'export GIT_AUTHOR_EMAIL="$CORRECT_EMAIL" \n',
+                    '--tag-name-filter', 'cat', '--', '--branches', '--tags'])
 
 def push_to_different_repo(path_to_src_repo, path_to_dest_repo):
 
@@ -72,7 +68,7 @@ def push_to_different_repo(path_to_src_repo, path_to_dest_repo):
 
     # branch = TARGET_BRANCH.split('/')[1]
 
-    # git.Repo(PATH_TO_SRC_REPO).remote(name=NEW_REMOTE).push(f'{commit_hexsha}:{branch}')
+    # git.Repo(path_to_src_repo).remote(name=NEW_REMOTE_REPO).push(f'{commit_hexsha}:{branch}')
 
     git.Repo(path_to_src_repo).git.execute(['git', 'push', '-f', NEW_REMOTE_REPO, 'refs/heads/*'])
 
